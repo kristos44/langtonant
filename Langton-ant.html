@@ -1,0 +1,101 @@
+<canvas id="myCanvas" width="1900" height="900" style="border:1px solid #000000;">
+</canvas>
+<script>
+
+var c = document.getElementById("myCanvas");
+var ctx = c.getContext("2d");
+
+var counter = 0;
+var max = 12000;
+var timeout = 0;
+var pixelSize = 10;
+
+var startPreviousX = 950;
+var startPreviousY = 450;
+var startNextX = startPreviousX - pixelSize;
+var startNextY = startPreviousY;
+
+ctx.font = "10px Georgia";
+
+var dark = "red";
+var light = "white";
+var letters = "black";
+
+ctx.fillStyle = light;
+ctx.fillRect(0, 0, 1900, 900);
+
+ctx.fillStyle = dark;
+ctx.fillRect(startPreviousX, startPreviousY, pixelSize, pixelSize);
+ctx.fillStyle = letters;
+ctx.fillText("v", startPreviousX, startPreviousY + pixelSize);
+
+setTimeout(() => { move(startPreviousX, startPreviousY, startNextX, startNextY); }, timeout);
+
+function move (previousX, previousY, nextX, nextY) {
+    counter++;
+    console.log(counter);
+    var imgData = ctx.getImageData(nextX, nextY, 1, 1);
+    console.log(previousX, previousY, nextX, nextY, imgData.data[1]);
+    var newNextX, newNextY;
+
+    var direction;
+    if (previousX > nextX) {
+        direction = '<';
+        newNextX = nextX;
+    } else if (previousX < nextX) {
+        direction = '>';
+        newNextX = nextX;
+    } else if (previousY > nextY) {
+        direction = '^';
+        newNextY = nextY;
+    } else {
+        direction = 'v';
+        newNextY = nextY;
+    }
+
+    if (imgData.data[1] == 255) {
+        ctx.fillStyle = dark;
+        ctx.fillRect(nextX, nextY, pixelSize, pixelSize);
+
+        switch (direction) {
+            case '<':
+                newNextY = nextY - pixelSize;
+                break;
+            case '>':
+                newNextY = nextY + pixelSize;
+                break;
+            case '^':
+                newNextX = nextX + pixelSize;
+                break;
+            case 'v':
+                newNextX = nextX - pixelSize;
+                break;
+        }
+    } else {
+        ctx.fillStyle = light;
+        ctx.fillRect(nextX, nextY, pixelSize, pixelSize);
+
+        switch (direction) {
+            case '<':
+                newNextY = nextY + pixelSize;
+                break;
+            case '>':
+                newNextY = nextY - pixelSize;
+                break;
+            case '^':
+                newNextX = nextX - pixelSize;
+                break;
+            case 'v':
+                newNextX = nextX + pixelSize;
+                break;
+        }
+    }
+
+    ctx.fillStyle = letters;
+    ctx.fillText(direction, nextX, nextY + pixelSize);
+ 
+    if (counter < max) {
+        setTimeout(() => { move(nextX, nextY, newNextX, newNextY); }, timeout);
+    }
+}
+</script>
